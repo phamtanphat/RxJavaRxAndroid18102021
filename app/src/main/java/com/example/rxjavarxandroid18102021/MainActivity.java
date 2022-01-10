@@ -1,50 +1,33 @@
 package com.example.rxjavarxandroid18102021;
 
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Toast;
 
-import java.util.ArrayList;
-import java.util.Iterator;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+
 import java.util.concurrent.Callable;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 public class MainActivity extends AppCompatActivity {
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        ExecutorService executorService = Executors.newFixedThreadPool(2);
 
-
-        Future<String> future1 = executorService.submit(new Callable<String>() {
-            @Override
-            public String call() throws Exception {
-                Thread.sleep(4000);
-                return "hello";
-            }
-        });
-
-        Future<String> future2 = executorService.submit(new Callable<String>() {
-            @Override
-            public String call() throws Exception {
-                return "abc";
-            }
-        });
+//        1 + 2 - 3
         try {
-            Log.d("BBB",future1.get());
-            Log.d("BBB",future2.get());
+            int total = sum(1,2).get();
+            int result = minus(total,3).get();
+
+            Log.d("BBB",result + "");
         } catch (ExecutionException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -52,4 +35,30 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private Future<Integer> sum(int a, int b) {
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+
+        Future<Integer> future = executorService.submit(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                Thread.sleep(2000);
+                int c = a + b;
+                return c;
+            }
+        });
+        return future;
+    }
+
+    private Future<Integer> minus(int a, int b) {
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+
+        Future<Integer> future = executorService.submit(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                int c = a - b;
+                return c;
+            }
+        });
+        return future;
+    }
 }
