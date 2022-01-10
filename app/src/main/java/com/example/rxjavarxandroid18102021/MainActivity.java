@@ -8,6 +8,7 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -27,7 +28,9 @@ public class MainActivity extends AppCompatActivity {
             int total = sum(1,2).get();
             int result = minus(total,3).get();
 
-            Log.d("BBB",result + "");
+            Log.d("BBB","Total : " + total);
+            Log.d("BBB","Result : " + result);
+            Log.d("BBB","Done");
         } catch (ExecutionException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -35,30 +38,41 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private Future<Integer> sum(int a, int b) {
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private CompletableFuture<Integer> sum(int a, int b) {
         ExecutorService executorService = Executors.newFixedThreadPool(1);
 
-        Future<Integer> future = executorService.submit(new Callable<Integer>() {
+        CompletableFuture<Integer> completableFuture = new CompletableFuture<>();
+
+        executorService.execute(new Runnable() {
             @Override
-            public Integer call() throws Exception {
-                Thread.sleep(2000);
-                int c = a + b;
-                return c;
+            public void run() {
+                try {
+                    Thread.sleep(2000);
+                    int c = a + b;
+                    completableFuture.complete(c);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
             }
         });
-        return future;
+        return completableFuture;
     }
 
-    private Future<Integer> minus(int a, int b) {
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private CompletableFuture<Integer> minus(int a, int b) {
         ExecutorService executorService = Executors.newFixedThreadPool(1);
 
-        Future<Integer> future = executorService.submit(new Callable<Integer>() {
+        CompletableFuture<Integer> completableFuture = new CompletableFuture<>();
+
+        executorService.execute(new Runnable() {
             @Override
-            public Integer call() throws Exception {
+            public void run() {
                 int c = a - b;
-                return c;
+                completableFuture.complete(c);
             }
         });
-        return future;
+        return completableFuture;
     }
 }
