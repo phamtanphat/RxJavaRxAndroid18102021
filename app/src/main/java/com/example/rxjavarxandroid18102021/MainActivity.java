@@ -3,6 +3,7 @@ package com.example.rxjavarxandroid18102021;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,6 +14,14 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.function.Supplier;
+
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.annotations.NonNull;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Observer;
+import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -22,57 +31,33 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Observable<String> stringObservable = Observable.just("Teo", "Ti", "Tun", "Tuan", "Hoa", "Lan", "Cuc");
 
-//        1 + 2 - 3
-        try {
-            int total = sum(1,2).get();
-            int result = minus(total,3).get();
+        stringObservable
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<String>() {
+                    @Override
+                    public void onSubscribe(@NonNull Disposable d) {
 
-            Log.d("BBB","Total : " + total);
-            Log.d("BBB","Result : " + result);
-            Log.d("BBB","Done");
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+                    }
+
+                    @Override
+                    public void onNext(@NonNull String s) {
+                        Toast.makeText(MainActivity.this, s, Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    private CompletableFuture<Integer> sum(int a, int b) {
-        ExecutorService executorService = Executors.newFixedThreadPool(1);
 
-        CompletableFuture<Integer> completableFuture = new CompletableFuture<>();
-
-        executorService.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(2000);
-                    int c = a + b;
-                    completableFuture.complete(c);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-            }
-        });
-        return completableFuture;
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    private CompletableFuture<Integer> minus(int a, int b) {
-        ExecutorService executorService = Executors.newFixedThreadPool(1);
-
-        CompletableFuture<Integer> completableFuture = new CompletableFuture<>();
-
-        executorService.execute(new Runnable() {
-            @Override
-            public void run() {
-                int c = a - b;
-                completableFuture.complete(c);
-            }
-        });
-        return completableFuture;
-    }
 }
